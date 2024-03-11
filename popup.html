@@ -4,12 +4,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="popup.js"></script>
+    <title>Text Prompter</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            width: 40rem;
+            margin: 50px auto;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        #promptInput {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #submitButton {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #submitButton:hover {
+            background-color: #0056b3;
+        }
+
+        #responseText {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        #copyButton {
+            display: inline-block;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #copyButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="llm_summary"></div>
+    <div id="container">
+        <h1>Text Prompter</h1>
+        <p><strong>Enter the prompt and perform anything with your text!!</strong></p>
+        <input type="text" id="promptInput" placeholder="Enter your prompt here...">
+        <br>
+        <button id="submitButton">Submit</button>
+        <div id="responseText"></div>
+        <button id="copyButton">Copy Text</button>
+    </div>
+
+    <script>
+        document.getElementById("submitButton").addEventListener("click", function () {
+            var prompt = document.getElementById("promptInput").value.trim();
+            if (prompt !== "") {
+                fetch("http://localhost:5000/process_prompt", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ prompt: prompt })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("responseText").innerText = data.summary;
+                    })
+                    .catch(error => console.error("Error:", error));
+            } else {
+                alert("Please enter a prompt.");
+            }
+        });
+
+        document.getElementById("copyButton").addEventListener("click", function () {
+            var responseText = document.getElementById("responseText").innerText;
+            navigator.clipboard.writeText(responseText)
+                .then(() => alert("Text copied successfully"))
+                .catch(err => console.error("Error copying text: ", err));
+        });
+    </script>
 </body>
 
 </html>
